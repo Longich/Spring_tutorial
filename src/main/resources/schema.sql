@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS reservation (
 	reserved_date  DATE NOT NULL,
 	room_id        INT4 NOT NULL,
 	user_id        VARCHAR(255) NOT NULL,
-	PRIMARY KEY (reservation)
+	PRIMARY KEY (reservation_id)
 );
 CREATE TABLE IF NOT EXISTS usr (
 	user_id    VARCHAR(255) NOT NULL,
