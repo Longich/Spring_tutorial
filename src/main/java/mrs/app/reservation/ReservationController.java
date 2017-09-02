@@ -46,8 +46,8 @@ public class ReservationController {
     }
     
     @RequestMapping(method = RequestMethod.GET)
-    String reserveForm(@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) 
-        @PathVariable("date") LocalDate date, @PathVariable("roomId") Integer roomId, Model model) {
+    String reserveForm(@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @PathVariable("date") LocalDate date,
+            @PathVariable("roomId") Integer roomId, Model model) {
         ReservableRoomId reservableRoomId = new ReservableRoomId(roomId, date);
         List<Reservation> reservations = reservationService.findReservations(reservableRoomId);
         
