@@ -23,8 +23,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import mrs.domain.model.ReservableRoom;
 import mrs.domain.model.ReservableRoomId;
 import mrs.domain.model.Reservation;
-import mrs.domain.model.RoleName;
-import mrs.domain.model.User;
 import mrs.domain.service.reservation.AlreadyReservedException;
 import mrs.domain.service.reservation.ReservationService;
 import mrs.domain.service.reservation.UnavailableReservationException;
@@ -95,63 +93,14 @@ public class ReservationController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @PathVariable("date") LocalDate date,
             Model model) {
         
-        User user = userDetails.getUser();
         try {
-            reservationService.cancel(reservationId, user);
+            Reservation reservation = reservationService.findOne(reservationId);
+            reservationService.cancel(reservation);
         } catch (AccessDeniedException e) {
             model.addAttribute("error", e.getMessage());
             return reserveForm(date, roomId, model);
         }
         
         return "redirect:/reservations/{date}/{roomId}";
-    }
-    
-    private User dummyUser() {
-        User user = new User();
-        user.setUserId("taro-yamada");
-        user.setFirstName("太郎");
-        user.setLastName("山田");
-        user.setRoleName(RoleName.USER);
-        return user;
-    }
-    
-    @RequestMapping(method = RequestMethod.POST)
-    String reserve(@Validated ReservationForm form, BindingResult bindingResult,
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @PathVariable("date") LocalDate date,
-            @PathVariable("roomId") Integer roomId, Model model) {
-        if (bindingResult.hasErrors()) {
-            return reserveForm(date, roomId, model);
-        }
-        
-        ReservableRoom reservableRoom = new ReservableRoom(
-                new ReservableRoomId(roomId, date));
-        Reservation reservation = new Reservation();
-        reservation.setStartTime(form.getStartTime());
-        reservation.setEndTime(form.getEndTime());
-        reservation.setReservableRoom(reservableRoom);
-        reservation.setUser(dummyUser());
-        
-        try {
-            reservationService.reserve(reservation);
-        } catch (UnavailableReservationException | AlreadyReservedException e) {
-            model.addAttribute("error", e.getMessage());
-            return reserveForm(date, roomId, model);
-        }
-        return "redirect:/reservations/{date}/{roomId}";
-    }
-    
-    @RequestMapping(method = RequestMethod.POST, params = "cancel")
-    String cancel(@RequestParam("reservationId") Integer reservationId,
-            @PathVariable("roomId") Integer roomId,
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @PathVariable("date") LocalDate date,
-            Model model) {
-        User user = dummyUser();
-        try {
-            reservationService.cancel(reservationId, user);
-        } catch (AccessDeniedException e) {
-            model.addAttribute("error", e.getMessage());
-            return reserveForm(date, roomId, model);
-        }
-        return "redirect://reservations/{date}/{roomId}";
     }
 }
